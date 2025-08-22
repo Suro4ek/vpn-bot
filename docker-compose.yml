@@ -11,8 +11,8 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     
-    # Access to host network for VPN functionality
-    network_mode: host
+    # # Access to host network for VPN functionality
+    # network_mode: host
     
     # Privileged mode for network operations
     privileged: true
@@ -43,9 +43,9 @@ services:
       - /lib/modules:/lib/modules:ro
       - /usr/src:/usr/src:ro
     
-    # Port mapping (if not using host network)
-    # ports:
-    #   - "51820:51820/udp"
+
+    ports:
+      - "51820:51820/udp"
     
     # Healthcheck
     healthcheck:
