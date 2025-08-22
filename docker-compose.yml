@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  vpn-bot:
+    image: ghcr.io/suro4ek/vpn-bot:latest
+    container_name: wireguard-vpn-bot
+    restart: unless-stopped
+    
+    # Required for WireGuard to work
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    
+    # Access to host network for VPN functionality
+    network_mode: host
+    
+    # Privileged mode for network operations
+    privileged: true
+    
+    # Environment variables
+    environment:
+      - TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TG_USERS=${TELEGRAM_USER_IDS}
+      - GROUP=${TELEGRAM_GROUP_ID:-}
+      
+      # WireGuard configuration
+      - SERVER_PUB_IP=${SERVER_PUBLIC_IP:-auto}
+      - SERVER_PUB_NIC=${SERVER_PUBLIC_NIC:-eth0}
+      - SERVER_WG_NIC=${SERVER_WG_NIC:-wg0}
+      - SERVER_WG_IPV4=${SERVER_WG_IPV4:-10.66.66.1}
+      - SERVER_WG_IPV6=${SERVER_WG_IPV6:-fd42:42:42::1}
+      - SERVER_PORT=${SERVER_PORT:-51820}
+      - CLIENT_DNS_1=${CLIENT_DNS_1:-1.1.1.1}
+      - CLIENT_DNS_2=${CLIENT_DNS_2:-1.0.0.1}
+      - ALLOWED_IPS=${ALLOWED_IPS:-0.0.0.0/0,::/0}
+    
+    # Volumes for persistent data
+    volumes:
+      - ./wireguard-configs:/etc/wireguard
+      - ./bot-data:/app/data
+      - ./.env:/app/.env:ro
+      - ./wg0.json:/app/wg0.json:ro
+      - /lib/modules:/lib/modules:ro
+      - /usr/src:/usr/src:ro
+    
+    # Port mapping (if not using host network)
+    # ports:
+    #   - "51820:51820/udp"
+    
+    # Healthcheck
+    healthcheck:
+      test: ["CMD", "wg", "show"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  wireguard-configs:
+  bot-data:
