@@ -68,6 +68,11 @@ echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 # Load WireGuard module if available
 modprobe wireguard 2>/dev/null || echo "WireGuard module not available, using userspace implementation"
 
+# Check if qrencode is available
+if ! command -v qrencode &> /dev/null; then
+    echo "Warning: qrencode not found, QR codes will not be generated"
+fi
+
 # Start WireGuard
 echo "Starting WireGuard interface: ${SERVER_WG_NIC}"
 wg-quick up "${SERVER_WG_NIC}" 2>/dev/null || echo "WireGuard interface already up or failed to start"

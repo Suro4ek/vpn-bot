@@ -17,16 +17,18 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o vpn-bot ./cmd/main.go
 
 # Final stage with WireGuard
-FROM alpine:3.19
+FROM alpine:3.22
 
-# Install WireGuard and required packages
-RUN apk add --no-cache \
+# Add community repository and install WireGuard and required packages
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.22/community" >> /etc/apk/repositories && \
+    apk update && \
+    apk add --no-cache \
     wireguard-tools \
     iptables \
     ip6tables \
     bash \
     curl \
-    qrencode \
+    libqrencode \
     openrc \
     supervisor
 
@@ -46,6 +48,7 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Create necessary directories
 RUN mkdir -p /etc/wireguard
 RUN mkdir -p /var/log/supervisor
+RUN mkdir -p /etc/supervisor/conf.d
 
 # Create supervisor configuration
 RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
