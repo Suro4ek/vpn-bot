@@ -19,9 +19,9 @@ services:
     
     # Environment variables
     environment:
-      - TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TG_USERS=${TELEGRAM_USER_IDS}
-      - GROUP=${TELEGRAM_GROUP_ID:-}
+      - TOKEN=${TOKEN}
+      - TG_USERS=${TG_USERS}
+      - GROUP=${GROUP:-}
       
       # WireGuard configuration
       - SERVER_PUB_IP=${SERVER_PUBLIC_IP:-auto}

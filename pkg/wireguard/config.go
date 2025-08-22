@@ -28,44 +28,44 @@ type pair struct {
 }
 
 type Config struct {
-	Interface 
+	Interface
 	Peers []Peer `json:"peers"`
 }
 
 type Interface struct {
-	Address []myIPnet `json:"address"`
-	ListenPort *int `json:"listenPort"`
-	PrivateKey *Key `json:"privateKey"`
-	PostUp string `json:"postUp"`
-	PostDown string `json:"postDown"`
-	IpServer string `json:"ipServer"`
+	Address    []myIPnet `json:"address"`
+	ListenPort *int      `json:"listenPort"`
+	PrivateKey *Key      `json:"privateKey"`
+	PostUp     string    `json:"postUp"`
+	PostDown   string    `json:"postDown"`
+	IpServer   string    `json:"ipServer"`
 }
 
-type myIPnet struct{
+type myIPnet struct {
 	net.IPNet
 }
 
 type Peer struct {
-	Client string `json:"client"`
-	PublicKey Key `json:"publicKey"`
-	PresharedKey *Key `json:"presharedKey"`
-	AllowedIPs []myIPnet`json:"allowedIps"`
+	Client       string    `json:"client"`
+	PublicKey    Key       `json:"publicKey"`
+	PresharedKey *Key      `json:"presharedKey"`
+	AllowedIPs   []myIPnet `json:"allowedIps"`
 }
 
 type PeerSave struct {
-	Address []string `json:"address"`
-	EndPoint string `json:"endpoint"`
-	PrivateKey Key `json:"privateKey"`
-	PublicKey Key `json:"publicKey"`
-	PresharedKey *Key `json:"presharedKey"`
+	Address      []string `json:"address"`
+	EndPoint     string   `json:"endpoint"`
+	PrivateKey   Key      `json:"privateKey"`
+	PublicKey    Key      `json:"publicKey"`
+	PresharedKey *Key     `json:"presharedKey"`
 }
 
 // func (u *Peer) MarshalJSON() ([]byte, error) {
-	
+
 //     return json.Marshal(&u)
 // }
 
-func NewParserConfig() parser{
+func NewParserConfig() parser {
 	return parser{}
 }
 
@@ -84,8 +84,8 @@ func (p parseError) Error() string {
 	return fmt.Sprintf("Parse error: %s, (line %d)", p.message, p.line)
 }
 
-func (p parser) LoadConfig(path string) (*Config, error){
-	if _, err := os.Stat("./wg0.json"); errors.Is(err, os.ErrNotExist) {
+func (p parser) LoadConfig(path string) (*Config, error) {
+	if _, err := os.Stat("./config/wg0.json"); errors.Is(err, os.ErrNotExist) {
 		cfg, err := p.ParseFile("/etc/wireguard/wg0.conf")
 		if err != nil {
 			return nil, err
@@ -100,8 +100,8 @@ func (p parser) LoadConfig(path string) (*Config, error){
 	}
 	file, err := os.Open(path)
 	if err != nil {
-	  fmt.Println("File reading error", err)
-	  return nil, err
+		fmt.Println("File reading error", err)
+		return nil, err
 	}
 	defer file.Close()
 	byteValue, _ := io.ReadAll(file)
@@ -116,8 +116,8 @@ func (p parser) LoadConfig(path string) (*Config, error){
 func (p parser) ParseFile(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
-	  fmt.Println("File reading error", err)
-	  return nil, err
+		fmt.Println("File reading error", err)
+		return nil, err
 	}
 	defer file.Close()
 	var cfg *Config = nil
@@ -138,7 +138,7 @@ func (p parser) ParseFile(path string) (*Config, error) {
 			}
 			currentPeerConfig = &Peer{}
 			currentPeerConfig.Client = sec
-		}else if sec, matched := matchSectionHeader(line); matched {
+		} else if sec, matched := matchSectionHeader(line); matched {
 			if sec == sectionInterface {
 				if cfg != nil {
 					return nil, parseError{message: "duplicated Interface section", line: lineNum}
@@ -175,8 +175,8 @@ func (p parser) ParseFile(path string) (*Config, error) {
 	}
 	cfg.Peers = peers
 	if err := sc.Err(); err != nil {
-	  log.Fatal(err)
-	  return nil, err
+		log.Fatal(err)
+		return nil, err
 	}
 	return cfg, nil
 }
@@ -203,31 +203,30 @@ func (p parser) SaveConfig(cfg *Config) error {
 	}
 	data, _ := json.Marshal(cfg)
 	config := make(map[string]interface{})
-    json.Unmarshal(data, &config)
+	json.Unmarshal(data, &config)
 	err = t.Funcs(template.FuncMap{"unescape": unescape}).Funcs(template.FuncMap{"ipvs": joinarray}).Execute(f, config)
 	if err != nil {
 		return err
 	}
 	f.Close()
 	file, _ := json.MarshalIndent(cfg, "", " ")
-	_ = os.WriteFile("wg0.json", file, 0644)
+	_ = os.WriteFile("./config/wg0.json", file, 0644)
 	return nil
 }
 
-func (k *myIPnet) UnmarshalJSON(data []byte) (error) {
+func (k *myIPnet) UnmarshalJSON(data []byte) error {
 	seg := strings.TrimSpace(strings.ReplaceAll(string(data), "\"", ""))
 	ip, err := parseIPNet(seg)
 	if err != nil {
 		return err
 	}
 	*k = myIPnet{*ip}
-    return nil
+	return nil
 }
-
 
 func (k myIPnet) MarshalJSON() ([]byte, error) {
 	str := k.String()
-    return json.Marshal(&str)
+	return json.Marshal(&str)
 }
 
 func parseInterfaceField(cfg *Config, p pair) *parseError {
@@ -321,7 +320,7 @@ func matchClientHeader(s string) (string, bool) {
 	sec := ""
 	if matched {
 		sec = re.ReplaceAllString(s, "${section}")
-	}else {
+	} else {
 		sec = re1.ReplaceAllString(s, "${section}")
 	}
 	return sec, true

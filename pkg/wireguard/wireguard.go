@@ -37,7 +37,29 @@ func (w wireguardConfig) AddClient(name string) error {
 			return errors.New("client exists")
 		}
 	}
-	getlastIP := w.cfg.Peers[len(w.cfg.Peers)-1].AllowedIPs
+	
+	var getlastIP []myIPnet
+	if len(w.cfg.Peers) > 0 {
+		getlastIP = w.cfg.Peers[len(w.cfg.Peers)-1].AllowedIPs
+	} else {
+		// Если peers пустые, начинаем с базового IP из конфигурации сервера
+		if len(w.cfg.Address) >= 2 {
+			// Используем адреса сервера как базовые для первого клиента
+			serverIPv4 := w.cfg.Address[0]
+			serverIPv6 := w.cfg.Address[1]
+			
+			// Создаем /32 для IPv4 и /128 для IPv6 маски для клиента
+			clientIPv4 := net.IPNet{IP: serverIPv4.IP, Mask: net.CIDRMask(32, 32)}
+			clientIPv6 := net.IPNet{IP: serverIPv6.IP, Mask: net.CIDRMask(128, 128)}
+			
+			getlastIP = []myIPnet{
+				{IPNet: clientIPv4},
+				{IPNet: clientIPv6},
+			}
+		} else {
+			return errors.New("server configuration missing address information")
+		}
+	}
 	ips, err := w.getIPS(getlastIP, w.cfg.Address)
 	if err != nil {
 		return err
