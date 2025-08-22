@@ -19,7 +19,7 @@ func main() {
 	flag.StringVar(&envPath, "envfile", ".env", "envFile path")
 	flag.Parse()
 	wg := wireguard.NewParserConfig()
-	cfg, err := wg.LoadConfig("./wg0.json")
+	cfg, err := wg.LoadConfig("./config/wg0.json")
 	if err != nil {
 		panic(err)
 	}

@@ -38,6 +38,7 @@ services:
     volumes:
       - ./wireguard-configs:/etc/wireguard
       - ./bot-data:/app/data
+      - ./config:/app/config
       - ./.env:/app/.env:ro
       - /lib/modules:/lib/modules:ro
       - /usr/src:/usr/src:ro
