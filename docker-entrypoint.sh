@@ -16,7 +16,7 @@ cat > /app/config/wg0.json << EOF
 {
   "interface": {
     "name": "${SERVER_WG_NIC}",
-    "address": "${SERVER_WG_IPV4}/24",
+    "address": "${SERVER_WG_IPV4}",
     "port": ${SERVER_PORT}
   }
 }
