@@ -39,7 +39,6 @@ services:
       - ./wireguard-configs:/etc/wireguard
       - ./bot-data:/app/data
       - ./.env:/app/.env:ro
-      - ./wg0.json:/app/wg0.json:ro
       - /lib/modules:/lib/modules:ro
       - /usr/src:/usr/src:ro
     

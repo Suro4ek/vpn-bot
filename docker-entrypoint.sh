@@ -5,6 +5,22 @@ set -e
 mkdir -p /etc/wireguard
 mkdir -p /app/data
 
+# Create wg0.json configuration for the bot from environment variables
+echo "Creating wg0.json configuration..."
+SERVER_WG_IPV4=${SERVER_WG_IPV4:-"10.66.66.1"}
+SERVER_PORT=${SERVER_PORT:-"51820"}
+SERVER_WG_NIC=${SERVER_WG_NIC:-"wg0"}
+
+cat > /app/wg0.json << EOF
+{
+  "interface": {
+    "name": "${SERVER_WG_NIC}",
+    "address": "${SERVER_WG_IPV4}/24",
+    "port": ${SERVER_PORT}
+  }
+}
+EOF
+
 # Check if WireGuard is already configured
 if [ ! -f "/etc/wireguard/params" ]; then
     echo "Initializing WireGuard configuration..."

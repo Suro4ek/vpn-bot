@@ -32,6 +32,9 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.22/community" >> /etc/apk/repo
     openrc \
     supervisor
 
+# Set working directory
+WORKDIR /app
+
 # Copy the built binary
 COPY --from=builder /app/vpn-bot /usr/local/bin/vpn-bot
 
@@ -55,9 +58,11 @@ RUN echo "[supervisord]" > /etc/supervisor/conf.d/supervisord.conf && \
     echo "nodaemon=true" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "logfile=/var/log/supervisor/supervisord.log" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "pidfile=/var/run/supervisord.pid" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "user=root" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "[program:vpn-bot]" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "command=/usr/local/bin/vpn-bot" >> /etc/supervisor/conf.d/supervisord.conf && \
+    echo "directory=/app" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "autostart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "autorestart=true" >> /etc/supervisor/conf.d/supervisord.conf && \
     echo "stderr_logfile=/var/log/supervisor/vpn-bot.err.log" >> /etc/supervisor/conf.d/supervisord.conf && \
